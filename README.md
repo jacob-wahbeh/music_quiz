@@ -1,36 +1,118 @@
-This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
+# VibeCheck - Tinder for Music 🎵
 
-## Getting Started
+A high-energy music compatibility party game where friends guess each other's music taste through a Tinder-style swipe interface.
 
-First, run the development server:
+## Features
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+- **Spotify Integration**: Login with Spotify to analyze your listening history
+- **Smart Deck Generation**: 20 tracks across 4 categories:
+  - 🎵 **Anthems**: Your top tracks
+  - 🪤 **Traps**: Songs that sound like you but aren't yours
+  - 🤢 **Icks**: Songs you probably don't like
+  - 🌍 **Culture**: Global Top 50 wildcards
+- **Swipe Gameplay**: Intuitive left/right swiping with audio previews
+- **Instant Feedback**: Sound effects and animations for correct/wrong guesses
+- **Score Breakdown**: See how well your friend knows your music taste
+
+## Local Setup
+
+### Prerequisites
+
+- Node.js 18+
+- npm
+- A Spotify Developer account
+
+### Environment Variables
+
+Create a `.env.local` file in the root directory:
+
+```env
+NEXT_PUBLIC_APP_URL=http://localhost:3000
+SPOTIFY_CLIENT_ID=your_spotify_client_id
+SPOTIFY_REDIRECT_URI=http://localhost:3000/api/auth/callback
+
+# Optional: Upstash Redis for session caching (falls back to in-memory if not set)
+UPSTASH_REDIS_REST_URL=
+UPSTASH_REDIS_REST_TOKEN=
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
+### Spotify Developer Setup
 
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
+1. Go to [Spotify Developer Dashboard](https://developer.spotify.com/dashboard)
+2. Create a new app
+3. Add `http://localhost:3000/api/auth/callback` as a Redirect URI
+4. Copy your Client ID to `.env.local`
 
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
+### Installation
 
-## Learn More
+```bash
+# Install dependencies
+npm install
 
-To learn more about Next.js, take a look at the following resources:
+# Run the development server
+npm run dev
+```
 
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
+Open [http://localhost:3000](http://localhost:3000) in your browser.
 
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
+## How to Play
 
-## Deploy on Vercel
+1. **Host**: Log in with Spotify on the landing page
+2. **Host**: Click "Create New Session" on the dashboard
+3. **Host**: Share the generated link with a friend
+4. **Guesser**: Open the link and tap "Start"
+5. **Guesser**: Swipe RIGHT if you think the host LIKES the song
+6. **Guesser**: Swipe LEFT if you think the host DOESN'T like it
+7. See your score and breakdown at the end!
 
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
+## Tech Stack
 
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+- **Framework**: Next.js 14+ (App Router)
+- **Language**: TypeScript
+- **Styling**: Tailwind CSS
+- **Animations**: Framer Motion
+- **Audio**: Howler.js
+- **Cache**: Upstash Redis (with in-memory fallback)
+- **Auth**: Spotify OAuth 2.0 with PKCE
+
+## Project Structure
+
+```
+src/
+├── app/
+│   ├── api/
+│   │   ├── auth/
+│   │   │   ├── login/route.ts      # PKCE auth initiation
+│   │   │   └── callback/route.ts   # Token exchange
+│   │   └── session/
+│   │       ├── create/route.ts     # Deck generation
+│   │       └── [sessionId]/route.ts # Session fetch
+│   ├── host/page.tsx               # Host dashboard
+│   ├── play/[sessionId]/page.tsx   # Game interface
+│   ├── page.tsx                    # Landing page
+│   ├── layout.tsx
+│   └── globals.css
+├── components/
+│   ├── SwipeCard.tsx               # Draggable card
+│   ├── FeedbackOverlay.tsx         # Correct/wrong feedback
+│   ├── AudioPlayer.tsx             # Audio playback
+│   └── ResultsScreen.tsx           # End game results
+└── lib/
+    ├── types.ts                    # TypeScript types
+    ├── pkce.ts                     # PKCE utilities
+    ├── spotify.ts                  # Spotify API wrapper
+    ├── redis.ts                    # Session cache
+    └── deck.ts                     # Deck generation algorithm
+```
+
+## Sound Effects
+
+To enable sound effects, add the following files to `/public/sounds/`:
+- `ding.mp3` - Played on correct answers
+- `buzzer.mp3` - Played on wrong answers
+
+The app works without these files but will show console warnings.
+
+## License
+
+MIT
